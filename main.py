@@ -34,8 +34,8 @@ def main():
     ''' ↓↓↓ Build Q-learning Agent ↓↓↓ '''
     if not os.path.exists('model'): os.mkdir('model')
     agent = QLearningAgent(
-        s_dim=env.observation_space.n,
-        a_dim=env.action_space.n,
+        s_dim=env.observation_space.n, # 48
+        a_dim=env.action_space.n, # 4
         lr=0.2,
         gamma=0.9,
         exp_noise=0.1)
@@ -46,15 +46,14 @@ def main():
     while total_steps < Max_train_steps:
         s, info = env.reset(seed=seed)
         seed += 1
-        done, steps = False, 0
+        done = False
 
         while not done:
-            steps += 1
             a = agent.select_action(s, deterministic=False)
-            s_next, r, dw, tr, info = env.step(a)
-            agent.train(s, a, r, s_next, dw)
+            s_next, r, terminated, truncated, info = env.step(a)
+            agent.train(s, a, r, s_next, terminated)
 
-            done = (dw or tr)
+            done = (terminated or truncated)
             s = s_next
 
             total_steps += 1

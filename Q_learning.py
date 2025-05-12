@@ -19,10 +19,10 @@ class QLearningAgent():
             else:
                 return np.argmax(self.Q[s, :])
 
-    def train(self, s, a, r, s_next, dw):
+    def train(self, s, a, r, s_next, is_terminal):
         '''Update Q table'''
         Q_sa = self.Q[s, a]
-        target_Q = r + (1 - dw) * self.gamma * np.max(self.Q[s_next, :])
+        target_Q = r + (1 - is_terminal) * self.gamma * np.max(self.Q[s_next, :])
         self.Q[s, a] += self.lr * (target_Q - Q_sa)
 
     def save(self):
@@ -44,8 +44,8 @@ def evaluate_policy(env, agent):
     while not done:
         # Take deterministic actions at test time
         a = agent.select_action(s, deterministic=True)
-        s_next, r, dw, tr, info = env.step(a)
-        done = (dw or tr)
+        s_next, r, terminated, truncated, info = env.step(a)
+        done = (terminated or truncated)
 
         ep_r += r
         steps += 1
